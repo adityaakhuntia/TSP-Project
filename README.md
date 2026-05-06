@@ -97,21 +97,3 @@ We welcome contributions! Whether it's:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
-
-- Inspired by classic computer science literature
-- Built with passion for algorithmic education
-- Thanks to the open-source community for web development tools
-
-## 📞 Contact
-
-**Aditya Akhuntia**
-- GitHub: [@adityaakhuntia](https://github.com/adityaakhuntia)
-- Project Link: [https://github.com/adityaakhuntia/TSP-Project](https://github.com/adityaakhuntia/TSP-Project)
-
----
-
-*⭐ Star this repo if you find it helpful!*
-
-*"The journey of a thousand miles begins with a single step... and the optimal path through a thousand cities begins with understanding TSP!"* 🗺️✨</content>
-<parameter name="filePath">c:\Users\91700\Desktop\TSP\README.md
