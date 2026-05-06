@@ -2,7 +2,7 @@
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/adityaakhuntia/TSP-Project)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
- 
+  
 ## 🌟 Overview
   
 Dive into the fascinating world of the **Travelling Salesman Problem (TSP)** with this interactive educational platform! Built with cutting-edge web technologies, TSP Explorer demystifies one of computer science's most notorious optimization challenges, blending theoretical depth with practical insights from **Design and Analysis of Algorithms (DAA)**.
