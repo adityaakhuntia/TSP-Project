@@ -1,6 +1,6 @@
 # 🚀 TSP Explorer: Mastering the Travelling Salesman Problem
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/adityaakhuntia/TSP-Project)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?style=flat&logo=github)](https://github.com/adityaakhuntia/TSP-Project) 
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
    
 ## 🌟 Overview
