@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TSP — Travelling Salesman Problem</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,700;1,800&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#f5f0e8;
+  --bg2:#ede8df;
+  --white:#faf7f2;
+  --bd:#ddd5c8;
+  --bd2:#c9bfb0;
+  --ac:#5c6bc0;
+  --ac2:#0ca678;
+  --yw:#c9752a;
+  --rd:#b5334a;
+  --gr:#2f7a44;
+  --tx:#1c1a16;
+  --mu:#5c5347;
+  --mu2:#9e9082;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);color:var(--tx);
+  font-family:'Playfair Display','Georgia',serif;
+  min-height:100vh;
+}
+
+/* ══ HEADER ══ */
+.site-header{
+  background:var(--white);
+  border-bottom:1px solid var(--bd);
+  padding:0 72px;
+  position:sticky;top:0;z-index:100;
+}
+.header-inner{
+  display:flex;align-items:center;justify-content:space-between;
+  height:60px;
+}
+.header-logo{
+  font-family:'Syne',sans-serif;font-size:15px;font-weight:700;
+  color:var(--tx);letter-spacing:-.3px;display:flex;align-items:center;gap:8px;
+}
+.header-logo span{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--ac);
+}
+.header-nav{display:flex;gap:6px;}
+.hn{
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--mu);cursor:pointer;
+  padding:6px 14px;border-radius:6px;background:transparent;
+  border:none;transition:all .18s;
+}
+.hn:hover{background:var(--bg);color:var(--tx);}
+.hn.on{background:var(--ac);color:#fff;}
+
+/* ══ HERO BAND ══ */
+.hero{
+  background:var(--white);
+  border-bottom:1px solid var(--bd);
+  padding:80px 72px 72px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--ac);margin-bottom:22px;
+  display:flex;align-items:center;gap:10px;
+  justify-content:center;
+}
+.hero-eyebrow::before{content:'';width:28px;height:2px;background:var(--ac);border-radius:2px;}
+.hero-eyebrow::after{content:'';width:28px;height:2px;background:var(--ac);border-radius:2px;}
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(52px,6.5vw,88px);
+  font-weight:800;line-height:.88;
+  letter-spacing:-3px;color:var(--tx);
+  margin-bottom:28px;
+}
+.hero-title .hl{color:var(--ac);}
+.hero-subtitle{
+  font-size:19px;color:var(--mu);line-height:1.75;font-weight:500;
+  max-width:600px;margin-bottom:28px;
+}
+.hero-subtitle strong{color:var(--tx);}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:44px;justify-content:center;}
+.tag{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:2px;text-transform:uppercase;
+  padding:5px 13px;border-radius:20px;border:1.5px solid;font-weight:500;
+}
+.t-blue{color:var(--ac);border-color:rgba(59,91,219,.35);background:rgba(59,91,219,.06);}
+.t-red{color:var(--rd);border-color:rgba(201,42,42,.3);background:rgba(201,42,42,.05);}
+.t-green{color:var(--gr);border-color:rgba(47,158,68,.3);background:rgba(47,158,68,.05);}
+
+/* stat row */
+.stat-row{
+  display:flex;gap:16px;
+  justify-content:center;
+}
+.stat-card{
+  background:var(--bg);border:1.5px solid var(--bd);
+  border-radius:12px;padding:20px 28px;display:flex;flex-direction:column;gap:4px;
+  min-width:140px;
+  align-items:center;
+}
+.stat-val{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;}
+.stat-val.blue{color:var(--ac);}
+.stat-val.orange{color:var(--yw);}
+.stat-val.red{color:var(--rd);}
+.stat-key{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mu);}
+
+/* ══ PAGE ══ */
+.page{max-width:1320px;margin:0 auto;padding:0 72px 80px;}
+
+/* ── SECTION HEADER ── */
+.sec{margin-top:64px;}
+.sec-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--ac);margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--bd);}
+.sec-title{
+  font-family:'Playfair Display',serif;font-size:34px;font-weight:800;
+  color:var(--tx);margin-bottom:6px;letter-spacing:-.3px;
+}
+.sec-sub{font-size:16px;font-weight:500;color:var(--mu);line-height:1.7;max-width:560px;margin-bottom:28px;}
+
+/* ── CARD ── */
+.card{
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:14px;padding:28px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+
+/* ══ DEFINITION ══ */
+.def-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--bd);border-radius:14px;overflow:hidden;border:1.5px solid var(--bd);}
+.def-cell{
+  background:var(--white);padding:32px 28px;
+  position:relative;
+}
+.def-cell::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+}
+.def-cell:nth-child(1)::before{background:var(--ac);}
+.def-cell:nth-child(2)::before{background:var(--yw);}
+.def-cell:nth-child(3)::before{background:var(--ac2);}
+.def-cell .dc-icon{font-size:30px;margin-bottom:14px;}
+.def-cell h3{
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:800;
+  color:var(--tx);margin-bottom:10px;
+}
+.def-cell p{font-size:15px;font-weight:500;color:var(--mu);line-height:1.8;}
+.def-cell p strong{color:var(--tx);}
+
+/* ══ ADV/DISADV ══ */
+.adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.adv-card{background:var(--white);border:1.5px solid var(--bd);border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.adv-head{
+  padding:18px 24px 16px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.adv-head h3{font-family:'Playfair Display',serif;font-size:22px;font-weight:800;}
+.adv-card:nth-child(1) .adv-head h3{color:var(--yw);}
+.adv-card:nth-child(2) .adv-head h3{color:var(--ac2);}
+.algo-badge{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;
+  text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid;
+}
+.ab-y{color:var(--yw);border-color:rgba(230,119,0,.3);background:rgba(230,119,0,.06);}
+.ab-g{color:var(--ac2);border-color:rgba(12,166,120,.3);background:rgba(12,166,120,.06);}
+.adv-body{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.pro-con h5{
+  font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;
+  text-transform:uppercase;margin-bottom:10px;
+}
+.pro h5{color:var(--gr);}
+.con h5{color:var(--rd);}
+.pro-con ul{list-style:none;display:flex;flex-direction:column;gap:7px;}
+.pro-con li{
+  font-size:15px;font-weight:500;color:var(--mu);line-height:1.6;
+  padding:8px 12px 8px 14px;border-radius:6px;
+  border-left:2.5px solid;
+}
+.pro li{border-color:rgba(47,158,68,.4);background:rgba(47,158,68,.04);}
+.con li{border-color:rgba(201,42,42,.35);background:rgba(201,42,42,.04);}
+
+/* ══ COMPLEXITY ══ */
+.cx-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.cx-card{
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:14px;padding:24px 20px;text-align:center;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+  position:relative;overflow:hidden;
+}
+.cx-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.cx-card:nth-child(1)::before{background:var(--yw);}
+.cx-card:nth-child(2)::before{background:var(--ac2);}
+.cx-card:nth-child(3)::before{background:var(--ac);}
+.cx-card:nth-child(4)::before{background:var(--mu2);}
+.cx-algo{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.cx-card:nth-child(1) .cx-algo{color:var(--yw);}
+.cx-card:nth-child(2) .cx-algo{color:var(--ac2);}
+.cx-card:nth-child(3) .cx-algo{color:var(--ac);}
+.cx-card:nth-child(4) .cx-algo{color:var(--mu);}
+.cx-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--tx);margin-bottom:6px;}
+.cx-space{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mu);margin-bottom:8px;}
+.cx-badge{
+  display:inline-block;font-family:'JetBrains Mono',monospace;
+  font-size:8px;letter-spacing:1px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;border:1px solid;
+}
+.optimal{color:var(--gr);border-color:rgba(47,158,68,.3);background:rgba(47,158,68,.06);}
+.partial{color:var(--yw);border-color:rgba(230,119,0,.3);background:rgba(230,119,0,.06);}
+.cx-note{font-size:12px;color:var(--mu);margin-top:8px;line-height:1.5;}
+
+/* ══ CONTROLS ROW ══ */
+.controls-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:20px;
+  margin-top:0;
+}
+
+/* config card */
+.cfg-card{background:var(--white);border:1.5px solid var(--bd);border-radius:14px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.cfg-head{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--tx);margin-bottom:20px;}
+
+.lbl{
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:7px;
+}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:18px;}
+.mbt{
+  padding:11px 10px;background:var(--bg);
+  border:1.5px solid var(--bd);border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;color:var(--mu);transition:all .2s;
+  font-weight:500;
+}
+.mbt:hover{border-color:var(--bd2);color:var(--tx);}
+.mbt.oy{background:rgba(230,119,0,.07);border-color:rgba(230,119,0,.4);color:var(--yw);font-weight:600;}
+.mbt.oc{background:rgba(12,166,120,.07);border-color:rgba(12,166,120,.35);color:var(--ac2);font-weight:600;}
+
+.spd-row{display:flex;gap:6px;margin-bottom:20px;}
+.sbt{
+  flex:1;padding:8px 4px;background:var(--bg);
+  border:1.5px solid var(--bd);border-radius:8px;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  color:var(--mu);cursor:pointer;transition:all .2s;
+}
+.sbt:hover{border-color:var(--bd2);color:var(--tx);}
+.sbt.on{background:rgba(230,119,0,.07);border-color:rgba(230,119,0,.45);color:var(--yw);}
+
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.btn{
+  padding:11px 14px;background:transparent;border:1.5px solid;
+  font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;border-radius:8px;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:7px;font-weight:500;
+}
+.b-go{
+  background:var(--ac);border-color:var(--ac);color:#fff;
+  grid-column:1/-1;
+}
+.b-go:hover:not(:disabled){background:#2f4dbf;border-color:#2f4dbf;}
+.b-cm{border-color:var(--bd2);color:var(--mu);}
+.b-cm:hover{border-color:var(--ac);color:var(--ac);}
+.b-rn{border-color:var(--bd2);color:var(--mu);}
+.b-rn:hover{border-color:var(--yw);color:var(--yw);}
+.b-cl{border-color:rgba(201,42,42,.4);color:var(--rd);}
+.b-cl:hover{background:rgba(201,42,42,.06);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.btn.spin .dot{animation:pulse .7s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.1}}
+
+/* results card */
+.res-card{background:var(--white);border:1.5px solid var(--bd);border-radius:14px;padding:28px;box-shadow:0 1px 4px rgba(0,0,0,.04);display:flex;flex-direction:column;gap:0;}
+.res-head{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--tx);margin-bottom:20px;}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--bd);}
+.srow:last-of-type{border-bottom:none;}
+.sk{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--mu);}
+.sv{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+.sv.y{color:var(--yw);}
+.sv.c{color:var(--ac2);}
+.sv.w{color:var(--tx);}
+.wbadge{
+  font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:1px;
+  text-transform:uppercase;padding:3px 10px;border-radius:20px;border:1px solid;
+}
+.wy{color:var(--yw);border-color:rgba(230,119,0,.4);background:rgba(230,119,0,.07);}
+.wc{color:var(--ac2);border-color:rgba(12,166,120,.35);background:rgba(12,166,120,.06);}
+.wt{color:var(--ac);border-color:rgba(59,91,219,.35);background:rgba(59,91,219,.06);}
+
+/* cmp bars */
+#cmpwrap{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--bd);}
+.cbars{display:flex;flex-direction:column;gap:10px;}
+.brow{display:flex;align-items:center;gap:10px;}
+.blbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu);width:50px;text-transform:uppercase;letter-spacing:1px;}
+.btrk{flex:1;height:7px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.bfl{height:100%;border-radius:4px;width:0;transition:width .6s cubic-bezier(.4,0,.2,1);}
+.bfl.y{background:linear-gradient(90deg,var(--yw),#ffaa44);}
+.bfl.c{background:linear-gradient(90deg,var(--ac2),#34d399);}
+.bnum{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu);width:42px;text-align:right;}
+
+/* tour */
+.tour-wrap{margin-top:16px;padding-top:16px;border-top:1px solid var(--bd);}
+.tour-lbl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);margin-bottom:7px;}
+#tour{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--mu);line-height:1.9;word-break:break-all;max-height:60px;overflow-y:auto;}
+
+/* ══ VISUALIZER ══ */
+.vis-wrap{
+  background:var(--white);border:1.5px solid var(--bd);
+  border-radius:14px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,.04);
+}
+.vis-topbar{
+  padding:16px 24px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg);
+}
+.vis-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mu);}
+.legend{display:flex;gap:16px;align-items:center;}
+.li{display:flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu);text-transform:uppercase;letter-spacing:1px;}
+.ld{width:8px;height:8px;border-radius:50%;}
+.ll{width:18px;height:2.5px;border-radius:2px;}
+
+#cw{
+  position:relative;height:520px;cursor:crosshair;
+  background:#fafbff;
+}
+#cw::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(59,91,219,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(59,91,219,.04) 1px,transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+canvas{display:block;width:100%;height:100%;}
+#splash{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;
+  pointer-events:none;transition:opacity .35s;
+}
+.sp-ic{font-size:48px;opacity:.14;}
+.sp-tx{
+  font-family:'JetBrains Mono',monospace;font-size:11px;
+  letter-spacing:4px;text-transform:uppercase;color:var(--mu2);opacity:.5;
+}
+.hidden{opacity:0!important;pointer-events:none!important;}
+
+.vis-logbar{
+  padding:12px 24px;border-top:1px solid var(--bd);
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg);
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+}
+.vis-logbar .cur{color:var(--ac);animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+#logtxt{color:var(--tx);}
+
+/* ══ FOOTER ══ */
+footer{
+  background:var(--white);border-top:1px solid var(--bd);
+  padding:18px 72px;display:flex;justify-content:space-between;align-items:center;
+}
+footer span{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mu);letter-spacing:1px;}
+footer b{color:var(--ac);}
+
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-logo"><span></span> TSP Visualizer</div>
+    <nav class="header-nav">
+      <button class="hn on" data-nav="dashboard" onclick="navTo(this,'sec-dashboard')">Dashboard</button>
+      <button class="hn" data-nav="documentation" onclick="navTo(this,'sec-definition')">Documentation</button>
+      <button class="hn" data-nav="complexity" onclick="navTo(this,'sec-complexity')">Complexity</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ══ HERO ══ -->
+<div class="hero" id="sec-dashboard">
+  <div class="hero-eyebrow">Graph Algorithms · Vol. 2 · DAA Project</div>
+  <h1 class="hero-title">Travelling<br/><span class="hl">Salesman</span><br/>Problem</h1>
+  <p class="hero-subtitle">
+    Given <strong>n cities</strong> and the distances between every pair, find the <strong>shortest possible route</strong> that visits every city exactly once and returns to the start. Watch Greedy and Brute Force compete — live.
+  </p>
+  <div class="hero-tags">
+    <span class="tag t-red">NP-Hard Problem</span>
+    <span class="tag t-blue">Unit 4 · Graph Algorithms</span>
+    <span class="tag t-green">Interactive Demo</span>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="stat-val blue">O(n²)</div>
+      <div class="stat-key">Greedy Time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val orange">O(n!)</div>
+      <div class="stat-key">Brute Force Time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val red">NP-Hard</div>
+      <div class="stat-key">Complexity Class</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val blue">O(1)</div>
+      <div class="stat-key">Space (Both)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PAGE CONTENT ══ -->
+<div class="page">
+
+  <!-- 1. DEFINITION -->
+  <section class="sec" id="sec-definition">
+    <div class="sec-label">01 · Definition</div>
+    <div class="sec-title">What is the Travelling Salesman Problem?</div>
+    <p class="sec-sub">Three pillars that define TSP and why it matters in computer science and the real world.</p>
+    <div class="def-grid">
+      <div class="def-cell">
+        <div class="dc-icon">🧠</div>
+        <h3>The Problem</h3>
+        <p>Given a set of cities and distances between them, find the <strong>shortest possible route</strong> visiting every city exactly once and returning to the origin. Formally modelled as finding the minimum weight Hamiltonian cycle in a complete graph.</p>
+      </div>
+      <div class="def-cell">
+        <div class="dc-icon">📊</div>
+        <h3>Why It's Hard</h3>
+        <p>TSP is <strong>NP-Hard</strong> — as n grows, the number of possible routes explodes factorially. For 10 cities: 181,440 routes. For 20 cities: over <strong>60 quadrillion routes</strong>. No known algorithm solves it optimally in polynomial time.</p>
+      </div>
+      <div class="def-cell">
+        <div class="dc-icon">🌍</div>
+        <h3>Real-World Use</h3>
+        <p>TSP appears in <strong>delivery routing</strong> (FedEx, Amazon), PCB drill path planning, DNA sequencing, warehouse robots, and network cable layout. Choosing the right algorithm directly impacts cost and time at scale.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. ADVANTAGES / DISADVANTAGES -->
+  <section class="sec" id="sec-algorithms">
+    <div class="sec-label">02 · Algorithms</div>
+    <div class="sec-title">Greedy vs Brute Force</div>
+    <p class="sec-sub">Two fundamentally different approaches — one trades optimality for speed, the other guarantees the best answer at enormous computational cost.</p>
+    <div class="adv-grid">
+
+      <div class="adv-card">
+        <div class="adv-head">
+          <h3>Greedy — Nearest Neighbor</h3>
+          <span class="algo-badge ab-y">Greedy Paradigm</span>
+        </div>
+        <div class="adv-body">
+          <div class="pro-con pro">
+            <h5>✓ Advantages</h5>
+            <ul>
+              <li>Extremely fast — O(n²) time</li>
+              <li>Works for any number of cities</li>
+              <li>Simple to understand and implement</li>
+              <li>Usually within 20–25% of optimal</li>
+              <li>O(1) extra space needed</li>
+            </ul>
+          </div>
+          <div class="pro-con con">
+            <h5>✕ Disadvantages</h5>
+            <ul>
+              <li>Does not guarantee optimal tour</li>
+              <li>Greedy traps — commits to bad early choices</li>
+              <li>Result varies based on starting city</li>
+              <li>Can be 40%+ longer than optimal in worst case</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="adv-card">
+        <div class="adv-head">
+          <h3>Brute Force — Exhaustive Search</h3>
+          <span class="algo-badge ab-g">Exhaustive Search</span>
+        </div>
+        <div class="adv-body">
+          <div class="pro-con pro">
+            <h5>✓ Advantages</h5>
+            <ul>
+              <li>Guarantees the globally optimal tour</li>
+              <li>Checks every possible permutation</li>
+              <li>Acts as gold standard for comparison</li>
+              <li>Handles all edge cases perfectly</li>
+            </ul>
+          </div>
+          <div class="pro-con con">
+            <h5>✕ Disadvantages</h5>
+            <ul>
+              <li>O(n!) — completely impractical for large n</li>
+              <li>10 cities = 181,440 checks</li>
+              <li>15 cities = 43 billion checks</li>
+              <li>Unusable in real-world at scale</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 3. TIME COMPLEXITY -->
+  <section class="sec" id="sec-complexity">
+    <div class="sec-label">03 · Complexity Analysis</div>
+    <div class="sec-title">Time & Space Complexity</div>
+    <p class="sec-sub">How each approach scales with the number of cities, and what that means in practice.</p>
+    <div class="cx-cards">
+      <div class="cx-card">
+        <div class="cx-algo">Greedy NN</div>
+        <div class="cx-val">O(n²)</div>
+        <div class="cx-space">Space: O(n)</div>
+        <span class="cx-badge partial">Approximate</span>
+        <p class="cx-note">At each of n steps, scan remaining cities. Fast enough for thousands of cities.</p>
+      </div>
+      <div class="cx-card">
+        <div class="cx-algo">Brute Force</div>
+        <div class="cx-val">O(n!)</div>
+        <div class="cx-space">Space: O(n)</div>
+        <span class="cx-badge optimal">Optimal</span>
+        <p class="cx-note">Generates all (n−1)! permutations. Feasible only for ≤ 9 cities in practice.</p>
+      </div>
+      <div class="cx-card">
+        <div class="cx-algo">Held-Karp DP</div>
+        <div class="cx-val">O(2ⁿn²)</div>
+        <div class="cx-space">Space: O(2ⁿn)</div>
+        <span class="cx-badge optimal">Optimal</span>
+        <p class="cx-note">Best known exact algorithm. Works up to ~20 cities. Uses dynamic programming.</p>
+      </div>
+      <div class="cx-card">
+        <div class="cx-algo">2-Opt Heuristic</div>
+        <div class="cx-val">O(n²)</div>
+        <div class="cx-space">Space: O(n)</div>
+        <span class="cx-badge partial">Near-Optimal</span>
+        <p class="cx-note">Improves a Greedy tour by repeatedly swapping pairs of edges. Used in practice.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. CONFIG + RESULTS (side by side) -->
+  <section class="sec" id="sec-controls">
+    <div class="sec-label">04 · Controls & Results</div>
+    <div class="sec-title">Configuration & Live Results</div>
+    <p class="sec-sub">Select your algorithm, set speed, and watch the results update in real time as the animation runs.</p>
+    <div class="controls-row">
+
+      <!-- Config -->
+      <div class="cfg-card">
+        <div class="cfg-head">⚙ Configuration</div>
+        <div class="lbl">Algorithm Mode</div>
+        <div class="mode-grid">
+          <button class="mbt oy" id="tg" onclick="setMode('greedy')">⬡ Greedy NN</button>
+          <button class="mbt" id="tb" onclick="setMode('brute')">⬡ Brute Force</button>
+        </div>
+        <div class="lbl">Animation Speed</div>
+        <div class="spd-row">
+          <button class="sbt on" onclick="setSp(this,900)">0.5×</button>
+          <button class="sbt" onclick="setSp(this,450)">1×</button>
+          <button class="sbt" onclick="setSp(this,180)">2×</button>
+          <button class="sbt" onclick="setSp(this,55)">4×</button>
+        </div>
+        <div class="btns">
+          <button class="btn b-go" id="rbtn" onclick="runAlgo()"><span class="dot"></span> Run Algorithm</button>
+          <button class="btn b-cm" onclick="runBoth()">⇄ Compare Both</button>
+          <button class="btn b-rn" onclick="rndCities()">↻ Random Cities</button>
+          <button class="btn b-cl" onclick="clearAll()">✕ Clear Canvas</button>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="res-card">
+        <div class="res-head">📊 Live Results</div>
+        <div class="srow"><span class="sk">Cities Placed</span><span class="sv w" id="sc">0</span></div>
+        <div class="srow"><span class="sk">Greedy Distance</span><span class="sv y" id="sg">—</span></div>
+        <div class="srow"><span class="sk">Brute Distance</span><span class="sv c" id="sb">—</span></div>
+        <div class="srow"><span class="sk">Winner</span><span class="sv w" id="sw">—</span></div>
+
+        <div id="cmpwrap">
+          <div class="cbars">
+            <div class="brow"><span class="blbl">Greedy</span><div class="btrk"><div class="bfl y" id="bgy"></div></div><span class="bnum" id="bgyn">—</span></div>
+            <div class="brow"><span class="blbl">Brute</span><div class="btrk"><div class="bfl c" id="bbc"></div></div><span class="bnum" id="bbcn">—</span></div>
+          </div>
+        </div>
+
+        <div class="tour-wrap">
+          <div class="tour-lbl">Tour Route</div>
+          <div id="tour">Place cities on the map and run an algorithm...</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. VISUALIZER -->
+  <section class="sec" id="sec-demo">
+    <div class="sec-label">05 · Interactive Demo</div>
+    <div class="sec-title">City Map Visualizer</div>
+    <p class="sec-sub">Click anywhere on the map to place cities. Then hit Run Algorithm to watch the route being built step by step.</p>
+    <div class="vis-wrap">
+      <div class="vis-topbar">
+        <span class="vis-title">// Live Visualization Canvas</span>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--ac2)"></div>Start City</div>
+          <div class="li"><div class="ld" style="background:var(--tx)"></div>City</div>
+          <div class="li"><div class="ll" style="background:var(--yw)"></div>Greedy Path</div>
+          <div class="li"><div class="ll" style="background:var(--ac2)"></div>Brute Path</div>
+        </div>
+      </div>
+
+      <div id="cw" onclick="addCity(event)">
+        <canvas id="cv"></canvas>
+        <div id="splash">
+          <div class="sp-ic">🗺</div>
+          <div class="sp-tx">Click anywhere to place cities</div>
+        </div>
+      </div>
+
+      <div class="vis-logbar">
+        <span class="cur">▶</span>
+        <span id="logtxt">Awaiting input — click the map above to place cities, then run an algorithm.</span>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page -->
+
+<footer>
+  <span>TSP Visualizer · <b>Graph Algorithms</b> · DAA Project</span>
+  <span>Vol. 2 — NP-Hard Optimization Problems</span>
+</footer>
+
+<script>
+const cv=document.getElementById('cv');
+const ctx=cv.getContext('2d');
+const cw=document.getElementById('cw');
+let cities=[],gTour=null,bTour=null,gDist=null,bDist=null;
+let mode='greedy',spd=900,busy=false;
+
+function resize(){cv.width=cw.clientWidth;cv.height=cw.clientHeight;draw();}
+window.addEventListener('resize',resize);
+setTimeout(resize,80);
+
+function addCity(e){
+  if(busy)return;
+  const r=cw.getBoundingClientRect();
+  const x=e.clientX-r.left,y=e.clientY-r.top;
+  for(let c of cities)if(Math.hypot(c.x-x,c.y-y)<24)return;
+  cities.push({x,y});
+  gTour=null;bTour=null;gDist=null;bDist=null;
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('cmpwrap').style.display='none';
+  updateStats();draw();
+  log(`City ${cities.length} placed on the map.`);
+}
+
+function setMode(m){
+  mode=m;
+  document.getElementById('tg').className='mbt'+(m==='greedy'?' oy':'');
+  document.getElementById('tb').className='mbt'+(m==='brute'?' oc':'');
+}
+function setSp(el,ms){
+  spd=ms;
+  document.querySelectorAll('.sbt').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const tdist=t=>{let d=0;for(let i=0;i<t.length;i++)d+=dist(cities[t[i]],cities[t[(i+1)%t.length]]);return d;};
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+async function runAlgo(){
+  if(cities.length<2||busy)return;
+  if(mode==='brute'&&cities.length>9){log('⚠ Brute Force is limited to 9 cities. Use Random Cities to get a small set.');return;}
+  mode==='greedy'?await animGreedy():await animBrute();
+}
+async function runBoth(){
+  if(cities.length<2||busy)return;
+  if(cities.length>9){log('⚠ Brute Force needs ≤9 cities for comparison. Running Greedy only.');await animGreedy();return;}
+  await animGreedy();await sleep(400);await animBrute();showCmp();
+}
+
+async function animGreedy(){
+  busy=true;setBusy(true);
+  log('Running Greedy Nearest Neighbor...');
+  const n=cities.length,vis=new Array(n).fill(false);
+  const t=[0];vis[0]=true;
+  draw(t,null,'build');await sleep(spd);
+  for(let i=1;i<n;i++){
+    const last=t[t.length-1];
+    let near=-1,minD=Infinity;
+    for(let j=0;j<n;j++)if(!vis[j]){const d=dist(cities[last],cities[j]);if(d<minD){minD=d;near=j;}}
+    vis[near]=true;t.push(near);
+    log(`Step ${i} · City ${last+1} → City ${near+1}  (${minD.toFixed(1)} units)`);
+    draw(t,null,'build');await sleep(spd);
+  }
+  gTour=[...t];gDist=tdist(gTour);
+  log(`✓ Greedy complete! Total distance: ${gDist.toFixed(1)} units`);
+  updateStats();draw(gTour,bTour);
+  busy=false;setBusy(false);
+}
+
+async function animBrute(){
+  busy=true;setBusy(true);
+  log('Brute Force: checking every possible permutation...');
+  const n=cities.length;
+  const idx=Array.from({length:n-1},(_,i)=>i+1);
+  let best=null,bestD=Infinity,count=0;
+  const fact=x=>x<=1?1:x*fact(x-1),total=fact(n-1);
+  async function perm(arr,l=0){
+    if(l===arr.length){
+      const t=[0,...arr],d=tdist(t);count++;
+      if(d<bestD){bestD=d;best=[...t];draw(gTour,best,'best');log(`${count}/${total} routes checked · Best so far: ${bestD.toFixed(1)}`);await sleep(Math.max(spd,80));}
+      return;
+    }
+    for(let i=l;i<arr.length;i++){
+      [arr[l],arr[i]]=[arr[i],arr[l]];await perm(arr,l+1);[arr[l],arr[i]]=[arr[i],arr[l]];
+    }
+  }
+  await perm(idx);
+  bTour=best;bDist=bestD;
+  log(`✓ Brute Force complete! Optimal distance: ${bDist.toFixed(1)} units  (${total} routes checked)`);
+  updateStats();draw(gTour,bTour);showCmp();
+  busy=false;setBusy(false);
+}
+
+function draw(gt=gTour,bt=bTour,phase=null){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(!cities.length)return;
+
+  // greedy path
+  if(gt&&gt.length>1){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(230,119,0,.55)';ctx.lineWidth=2.5;
+    ctx.setLineDash(phase==='build'?[8,5]:[]);
+    ctx.moveTo(cities[gt[0]].x,cities[gt[0]].y);
+    for(let i=1;i<gt.length;i++)ctx.lineTo(cities[gt[i]].x,cities[gt[i]].y);
+    if(phase!=='build')ctx.lineTo(cities[gt[0]].x,cities[gt[0]].y);
+    ctx.stroke();ctx.setLineDash([]);
+  }
+  // brute path
+  if(bt&&bt.length>1){
+    ctx.beginPath();
+    ctx.strokeStyle='rgba(12,166,120,.75)';ctx.lineWidth=2.5;ctx.setLineDash([]);
+    ctx.moveTo(cities[bt[0]].x,cities[bt[0]].y);
+    for(let i=1;i<bt.length;i++)ctx.lineTo(cities[bt[i]].x,cities[bt[i]].y);
+    ctx.lineTo(cities[bt[0]].x,cities[bt[0]].y);ctx.stroke();
+  }
+  // distance labels
+  if(cities.length<=8&&gt&&phase!=='build'){
+    ctx.font='500 9px JetBrains Mono,monospace';ctx.fillStyle='rgba(230,119,0,.5)';
+    for(let i=0;i<gt.length;i++){
+      const a=cities[gt[i]],b=cities[gt[(i+1)%gt.length]];
+      ctx.fillText(dist(a,b).toFixed(0),(a.x+b.x)/2+3,(a.y+b.y)/2-3);
+    }
+  }
+  // cities
+  cities.forEach((c,i)=>{
+    const s=i===0,r=s?12:8;
+    // shadow
+    ctx.beginPath();ctx.arc(c.x,c.y,r*3.5,0,Math.PI*2);
+    const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r*3.5);
+    g.addColorStop(0,s?'rgba(12,166,120,.15)':'rgba(59,91,219,.1)');
+    g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fill();
+    // circle
+    ctx.beginPath();ctx.arc(c.x,c.y,r,0,Math.PI*2);
+    ctx.fillStyle=s?'var(--ac2)':s?'':'var(--ac)';
+    ctx.fillStyle=s?'#0ca678':'#3b5bdb';
+    ctx.fill();
+    // inner white
+    ctx.beginPath();ctx.arc(c.x,c.y,r*.45,0,Math.PI*2);
+    ctx.fillStyle='white';ctx.fill();
+    // label
+    ctx.font='600 10px JetBrains Mono,monospace';
+    ctx.fillStyle=s?'#0ca678':'#3b5bdb';
+    ctx.fillText(`C${i+1}`,c.x+r+4,c.y+4);
+  });
+}
+
+function log(m){document.getElementById('logtxt').textContent=m;}
+function setBusy(on){
+  const b=document.getElementById('rbtn');
+  b.classList.toggle('spin',on);b.disabled=on;
+  b.innerHTML=on?'<span class="dot"></span> Running...':'<span class="dot"></span> Run Algorithm';
+}
+function updateStats(){
+  document.getElementById('sc').textContent=cities.length;
+  document.getElementById('sg').textContent=gDist?gDist.toFixed(1):'—';
+  document.getElementById('sb').textContent=bDist?bDist.toFixed(1):'—';
+  const w=document.getElementById('sw');
+  if(gDist&&bDist){
+    if(bDist<gDist-.5)w.innerHTML='<span class="wbadge wc">Brute Force</span>';
+    else if(Math.abs(bDist-gDist)<.5)w.innerHTML='<span class="wbadge wt">Tied!</span>';
+    else w.innerHTML='<span class="wbadge wy">Greedy</span>';
+  }else w.textContent='—';
+  const a=gTour||bTour;
+  if(a)document.getElementById('tour').textContent=a.map(i=>`C${i+1}`).join(' → ')+' → C1';
+}
+function showCmp(){
+  if(!gDist||!bDist)return;
+  document.getElementById('cmpwrap').style.display='block';
+  const mx=Math.max(gDist,bDist);
+  document.getElementById('bgy').style.width=(gDist/mx*100)+'%';
+  document.getElementById('bbc').style.width=(bDist/mx*100)+'%';
+  document.getElementById('bgyn').textContent=gDist.toFixed(1);
+  document.getElementById('bbcn').textContent=bDist.toFixed(1);
+}
+function rndCities(){
+  if(busy)return;clearAll();
+  const n=Math.floor(Math.random()*4)+5,p=70;
+  for(let i=0;i<n;i++)cities.push({x:p+Math.random()*(cv.width-p*2),y:p+Math.random()*(cv.height-p*2)});
+  document.getElementById('splash').classList.add('hidden');
+  updateStats();draw();log(`Generated ${n} random cities. Hit Run Algorithm to go!`);
+}
+function clearAll(){
+  if(busy)return;
+  cities=[];gTour=null;bTour=null;gDist=null;bDist=null;
+  document.getElementById('sc').textContent='0';
+  ['sg','sb'].forEach(id=>document.getElementById(id).textContent='—');
+  document.getElementById('sw').textContent='—';
+  document.getElementById('tour').textContent='Place cities on the map and run an algorithm...';
+  document.getElementById('cmpwrap').style.display='none';
+  document.getElementById('splash').classList.remove('hidden');
+  draw();log('Canvas cleared. Click anywhere on the map to place cities.');
+}
+
+function navTo(btn, targetId) {
+  // Update active button
+  document.querySelectorAll('.hn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // Scroll to target
+  const el = document.getElementById(targetId);
+  if (el) {
+    const offset = 68; // header height
+    const top = el.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+// Auto-highlight nav based on scroll position
+const navSections = [
+  { id: 'sec-dashboard', nav: 'dashboard' },
+  { id: 'sec-definition', nav: 'documentation' },
+  { id: 'sec-algorithms', nav: 'documentation' },
+  { id: 'sec-complexity', nav: 'complexity' },
+  { id: 'sec-controls', nav: 'complexity' },
+  { id: 'sec-demo', nav: 'complexity' },
+];
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 100;
+  let current = 'dashboard';
+  for (const s of navSections) {
+    const el = document.getElementById(s.id);
+    if (el && el.offsetTop <= scrollY) current = s.nav;
+  }
+  document.querySelectorAll('.hn').forEach(b => {
+    b.classList.toggle('on', b.dataset.nav === current);
+  });
+}, { passive: true });
+
+</script>
+</body>
+</html>
